@@ -1,0 +1,6 @@
+bin/
+obj/
+.vs/
+Unconference.v3.ncrunchsolution
+Unconference.v3.ncrunchsolution.user
+packages/
