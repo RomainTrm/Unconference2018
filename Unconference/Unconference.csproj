@@ -52,6 +52,7 @@
     <Compile Include="Factorial.cs" />
     <Compile Include="FuncList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Railway.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
