@@ -10,12 +10,15 @@ type Game = // cardinality : 3 * 3 + 2 * 3 + 2 + 1 = 18
     | Forty of Player * Point
     | Advantage of Player
     | Deuce
-
-let incrementPointPlayer score = // cardinality : 3
-    match score with 
-    | Zero -> Fifteen
-    | Fifteen -> Thirty
-    | Thirty -> failwith "Exception"  
+    
+let incrementPointForRegularScore winner (scoreP1, scoreP2) = // cardinality : 2 * 3 * 3 = 18
+    match winner, scoreP1, scoreP2 with
+    | Player1, Zero, _ -> Score (Fifteen, scoreP2)
+    | Player1, Fifteen, _ -> Score (Thirty, scoreP2)
+    | Player1, Thirty, _ -> Forty (Player1, scoreP2)
+    | Player2, _, Zero -> Score (scoreP1, Fifteen)
+    | Player2, _, Fifteen -> Score (scoreP1, Thirty)
+    | Player2, _, Thirty -> Forty (Player2, scoreP1)
 
 let incrementPoint game winner = // cardinality : 18 * 2 = 36
     match winner, game with
@@ -25,16 +28,11 @@ let incrementPoint game winner = // cardinality : 18 * 2 = 36
     | Player2, Advantage Player2 -> Score (Zero, Zero)
     | Player1, Advantage Player2 -> Deuce
     | Player2, Advantage Player1 -> Deuce
-    | Player1, Forty (Player1, _)  -> Score (Zero, Zero)
-    | Player2, Forty (Player2, _)  -> Score (Zero, Zero)
-    | Player1, Forty (Player2, _)  -> Deuce
-    | Player2, Forty (Player1, _)  -> Deuce
-    | Player1, Score (Thirty, scoreP2) -> Forty (Player1, scoreP2)
-    | Player2, Score (scoreP1, Thirty) -> Forty(Player2, scoreP1)
-    | Player1, Score (scoreP1, scoreP2) -> Score (incrementPointPlayer scoreP1, scoreP2)
-    | Player2, Score (scoreP1, scoreP2) -> Score (scoreP1, incrementPointPlayer scoreP2)
-
-
+    | Player1, Forty (Player1, _) -> Score (Zero, Zero)
+    | Player2, Forty (Player2, _) -> Score (Zero, Zero)
+    | Player1, Forty (Player2, _) -> Deuce
+    | Player2, Forty (Player1, _) -> Deuce
+    | _, Score (scoreP1, scoreP2) -> incrementPointForRegularScore winner (scoreP1, scoreP2)
 
 
 
@@ -46,7 +44,7 @@ let incrementsPlayer1 = [|
         [| Forty (Player1, Zero); Score (Zero, Zero) |]
         [| Forty (Player1, Fifteen); Score (Zero, Zero) |]
         [| Forty (Player2, Thirty); Deuce |]
-        [| Deuce ; Advantage Player1 |]
+        [| Deuce; Advantage Player1 |]
         [| Advantage Player1; Score (Zero, Zero) |]
         [| Advantage Player2; Deuce |]
     |] 
