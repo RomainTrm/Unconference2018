@@ -11,30 +11,36 @@ type Game = // cardinality : 3 * 3 + 2 * 3 + 2 + 1 = 18
     | Advantage of Player
     | Deuce
     
-let incrementPointForRegularScore winner (scoreP1, scoreP2) = // cardinality : 2 * 3 * 3 = 18
-    match winner, scoreP1, scoreP2 with
-    | Player1, Zero, _ -> Score (Fifteen, scoreP2)
-    | Player1, Fifteen, _ -> Score (Thirty, scoreP2)
-    | Player1, Thirty, _ -> Forty (Player1, scoreP2)
-    | Player2, _, Zero -> Score (scoreP1, Fifteen)
-    | Player2, _, Fifteen -> Score (scoreP1, Thirty)
-    | Player2, _, Thirty -> Forty (Player2, scoreP1)
 
-let incrementPoint game winner = // cardinality : 18 * 2 = 36
-    match winner, game with
-    | Player1, Deuce -> Advantage Player1
-    | Player2, Deuce -> Advantage Player2
-    | Player1, Advantage Player1 -> Score (Zero, Zero)
-    | Player2, Advantage Player2 -> Score (Zero, Zero)
-    | Player1, Advantage Player2 -> Deuce
-    | Player2, Advantage Player1 -> Deuce
-    | Player1, Forty (Player1, _) -> Score (Zero, Zero)
-    | Player2, Forty (Player2, _) -> Score (Zero, Zero)
-    | Player1, Forty (Player2, _) -> Deuce
-    | Player2, Forty (Player1, _) -> Deuce
-    | _, Score (scoreP1, scoreP2) -> incrementPointForRegularScore winner (scoreP1, scoreP2)
+let incrementPlayer1PointForRegularScore scoreP1 scoreP2 = // cardinality : 3 * 3 = 9
+    match scoreP1 with
+    | Zero -> Score (Fifteen, scoreP2)
+    | Fifteen -> Score (Thirty, scoreP2)
+    | Thirty -> Forty (Player1, scoreP2)
 
+let incrementPlayer2PointForRegularScore scoreP1 scoreP2 = // cardinality : 3 * 3 = 9
+    match scoreP2 with
+    | Zero -> Score (scoreP1, Fifteen)
+    | Fifteen -> Score (scoreP1, Thirty)
+    | Thirty -> Forty (Player2, scoreP1)
 
+let incrementPointForRegularScore (scoreP1, scoreP2) winner = // cardinality : 3 * 3 * 2 = 18
+    match winner with
+    | Player1 -> incrementPlayer1PointForRegularScore scoreP1 scoreP2
+    | Player2 -> incrementPlayer2PointForRegularScore scoreP1 scoreP2 
+
+let incrementWinningPoint playerAboutToWin winner = // cardinality : 2 * 2 = 4
+    if playerAboutToWin = winner 
+    then Score (Zero, Zero)
+    else Deuce
+
+let incrementPoint game = // cardinality : 18
+    match game with
+    | Deuce -> Advantage
+    | Advantage playerAboutToWin -> incrementWinningPoint playerAboutToWin
+    | Forty (playerAboutToWin, _) -> incrementWinningPoint playerAboutToWin
+    | Score (scoreP1, scoreP2) -> incrementPointForRegularScore (scoreP1, scoreP2) 
+    
 
 
 let incrementsPlayer1 = [|
